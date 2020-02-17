@@ -7,10 +7,17 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.os.Bundle;
 import android.view.Menu;
+import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -18,6 +25,8 @@ public class MainActivity extends AppCompatActivity {
 	private ListView drawerList;
 	private ActionBarDrawerToggle drawerToggle;
 	private Menu menu;
+
+	private HashMap<String, ArrayList> topicsData = new HashMap<>();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -37,16 +46,45 @@ public class MainActivity extends AppCompatActivity {
 
 		drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.drawer_open, R.string.drawer_close);
 
+		if(topicsData.isEmpty()) {
+			new AsyncSourcesLoader(this).execute();
+		}
+	}
+
+	public void dataDownloadFailed() {
+		Toast.makeText(this, "Failed to download source data", Toast.LENGTH_LONG).show();
 	}
 
 	private void selectItem(int position) {
-		Toast.makeText(getApplicationContext(), "clicked on " + position, Toast.LENGTH_LONG).show();
+		Toast.makeText(this, "clicked on " + position, Toast.LENGTH_LONG).show();
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
+	public boolean onCreateOptionsMenu(Menu m) {
 		getMenuInflater().inflate(R.menu.main_menu, menu);
-		menu = menu;
+		menu = m;
 		return true;
+	}
+
+	public void setupSources(HashMap<String, HashSet<String>> sourcesMap) {
+		topicsData.clear();
+
+		for(String topic: sourcesMap.keySet()) {
+			HashSet<String> sources = sourcesMap.get(topic);
+
+			if(sources == null) continue;
+
+			ArrayList<String> sourcesList = new ArrayList<>(sources);
+			Collections.sort(sourcesList);
+			topicsData.put(topic, sourcesList);
+		}
+
+		ArrayList<String> topicsList = new ArrayList<>(topicsData.keySet());
+		topicsList.add("all");
+		Collections.sort(topicsList);
+		SubMenu topicsMenu = menu.addSubMenu("Topics");
+		for(String s: topicsList) {
+			topicsMenu.add(s);
+		}
 	}
 }
