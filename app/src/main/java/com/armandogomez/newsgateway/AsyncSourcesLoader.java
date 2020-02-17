@@ -38,7 +38,7 @@ public class AsyncSourcesLoader extends AsyncTask<String, Integer, String> {
 			mainActivity.dataDownloadFailed();
 		}
 
-		HashMap<String, HashSet<String>> sourcesMap = parseJSON(s);
+		HashMap<String, Source> sourcesMap = parseJSON(s);
 		if(sourcesMap != null) {
 			mainActivity.setupSources(sourcesMap);
 		}
@@ -77,23 +77,23 @@ public class AsyncSourcesLoader extends AsyncTask<String, Integer, String> {
 		return sb.toString();
 	}
 
-	private HashMap<String, HashSet<String>> parseJSON(String s) {
-		HashMap<String, HashSet<String>> sourcesMap = new HashMap<>();
+	private HashMap<String, Source> parseJSON(String s) {
+		HashMap<String, Source> sourcesMap = new HashMap<>();
 
 		try {
 			JSONObject jsonObject = new JSONObject(s);
 			JSONArray jsonArray = jsonObject.getJSONArray("sources");
 
 			for(int i=0; i < jsonArray.length(); i++) {
-				JSONObject source = (JSONObject) jsonArray.get(i);
-				String category = source.getString("category");
-				String name = source.getString("name");
+				JSONObject sourceObject = (JSONObject) jsonArray.get(i);
+				String id = sourceObject.getString("id");
+				String name = sourceObject.getString("name");
+				String category = sourceObject.getString("category");
+				String language = sourceObject.getString("language");
+				String country = sourceObject.getString("country");
 
-				if(sourcesMap.containsKey(category)) {
-					sourcesMap.get(category).add(name);
-				} else {
-					sourcesMap.put(category, new HashSet<String>());
-					sourcesMap.get(category).add(name);
+				if(!sourcesMap.containsKey(id)) {
+					sourcesMap.put(id, new Source(id, name, category, language, country));
 				}
 			}
 			return sourcesMap;

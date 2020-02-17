@@ -27,6 +27,8 @@ public class MainActivity extends AppCompatActivity {
 	private Menu menu;
 
 	private HashMap<String, ArrayList> topicsData = new HashMap<>();
+	private HashMap<String, ArrayList> countriesData = new HashMap<>();
+	private HashMap<String, ArrayList> languagesData = new HashMap<>();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
 
 		drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.drawer_open, R.string.drawer_close);
 
-		if(topicsData.isEmpty()) {
+		if(topicsData.isEmpty() && countriesData.isEmpty() && languagesData.isEmpty()) {
 			new AsyncSourcesLoader(this).execute();
 		}
 	}
@@ -66,17 +68,36 @@ public class MainActivity extends AppCompatActivity {
 		return true;
 	}
 
-	public void setupSources(HashMap<String, HashSet<String>> sourcesMap) {
+	public void setupSources(HashMap<String, Source> sourcesMap) {
 		topicsData.clear();
+		countriesData.clear();
+		languagesData.clear();
 
-		for(String topic: sourcesMap.keySet()) {
-			HashSet<String> sources = sourcesMap.get(topic);
+		for(String source: sourcesMap.keySet()) {
+			String category = sourcesMap.get(source).getCategory();
+			String language = sourcesMap.get(source).getLanguage();
+			String country = sourcesMap.get(source).getCountry();
 
-			if(sources == null) continue;
+			if(category != null) {
+				if(!topicsData.containsKey(category)) {
+					topicsData.put(category, new ArrayList<>());
+				}
+				topicsData.get(category).add(source);
+			}
 
-			ArrayList<String> sourcesList = new ArrayList<>(sources);
-			Collections.sort(sourcesList);
-			topicsData.put(topic, sourcesList);
+			if(language != null) {
+				if(!languagesData.containsKey(language)) {
+					languagesData.put(language, new ArrayList<>());
+				}
+				languagesData.get(language).add(source);
+			}
+
+			if(country != null) {
+				if(!countriesData.containsKey(country)) {
+					countriesData.put(country, new ArrayList<>());
+				}
+				countriesData.get(country).add(source);
+			}
 		}
 
 		ArrayList<String> topicsList = new ArrayList<>(topicsData.keySet());
@@ -85,6 +106,22 @@ public class MainActivity extends AppCompatActivity {
 		SubMenu topicsMenu = menu.addSubMenu("Topics");
 		for(String s: topicsList) {
 			topicsMenu.add(s);
+		}
+
+		ArrayList<String> languagesList = new ArrayList<>(languagesData.keySet());
+		languagesList.add("all");
+		Collections.sort(languagesList);
+		SubMenu languagesMenu = menu.addSubMenu("Languages");
+		for(String s: languagesList) {
+			languagesMenu.add(s);
+		}
+
+		ArrayList<String> countriesList = new ArrayList<>(countriesData.keySet());
+		countriesList.add("all");
+		Collections.sort(countriesList);
+		SubMenu countriesMenu = menu.addSubMenu("Countries");
+		for(String s: countriesList) {
+			countriesMenu.add(s);
 		}
 	}
 }
