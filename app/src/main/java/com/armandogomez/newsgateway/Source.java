@@ -5,7 +5,7 @@ import android.os.Parcelable;
 
 import java.io.Serializable;
 
-public class Source implements Comparable<Source>, Serializable, Parcelable {
+public class Source implements Comparable<Source> {
 
 	private String id;
 	private String name;
@@ -19,10 +19,6 @@ public class Source implements Comparable<Source>, Serializable, Parcelable {
 		this.category = category;
 		this.language = language;
 		this.country = country;
-	}
-
-	Source(Parcel in) {
-		
 	}
 
 	public String getId() {
@@ -49,5 +45,4 @@ public class Source implements Comparable<Source>, Serializable, Parcelable {
 	public int compareTo(Source s) {
 		return this.getName().compareTo(s.getName());
 	}
-
 }

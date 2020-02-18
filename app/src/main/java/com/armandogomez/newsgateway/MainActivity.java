@@ -227,14 +227,6 @@ public class MainActivity extends AppCompatActivity {
 		}
 	}
 
-	@Override
-	public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
-		super.onSaveInstanceState(outState, outPersistentState);
-		outState.putString("CURR_SUBMENU_CAT", currentSubMenuCategory);
-		outState.putSerializable("CURR_SOURCE", currentSource);
-		outState.putParcelableArrayList("CURR_SOURCE_DISPLAYED", currentSourcesDisplayed);
-	}
-
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if(drawerToggle.onOptionsItemSelected(item)) {
 			Log.d(TAG, "onOptionsItemSelected: drawerToggle " + item);
