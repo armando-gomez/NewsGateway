@@ -8,11 +8,15 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class DrawerSourceAdapter extends ArrayAdapter<Source> {
 
-	public DrawerSourceAdapter(Context context, int textViewResourceId, ArrayList<Source> items) {
+	private HashMap<String, Integer> colorMap = new HashMap<>();
+
+	public DrawerSourceAdapter(Context context, int textViewResourceId, ArrayList<Source> items, HashMap<String, Integer> cm) {
 		super(context, textViewResourceId, items);
+		colorMap = cm;
 	}
 
 	@Override
@@ -25,8 +29,10 @@ public class DrawerSourceAdapter extends ArrayAdapter<Source> {
 		Source source = getItem(position);
 
 		TextView nameTextView = (TextView) listItemView.findViewById(R.id.text_view);
+		int color_id = colorMap.get(source.getCategory());
 
 		nameTextView.setText(source.getName());
+		nameTextView.setTextColor(color_id);
 
 		return listItemView;
 	}

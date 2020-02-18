@@ -1,13 +1,19 @@
 package com.armandogomez.newsgateway;
 
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
+import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.PersistableBundle;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -35,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
 
 	private HashMap<String, String> countryMap = new HashMap<>();
 	private HashMap<String, String> languageMap = new HashMap<>();
+	private HashMap<String, Integer> colorMap = new HashMap<>();
 
 	private DrawerLayout drawerLayout;
 	private ListView drawerList;
@@ -48,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
 
 	private ArrayList<Source> currentSourcesDisplayed = new ArrayList<>();
 	private String currentSubMenuCategory;
+	private Source currentSource;
 
 	private List<Fragment> fragments = new ArrayList<>();
 	private ViewPager pager;
@@ -76,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
 		pager.setAdapter(articlePagerAdapter);
 
 		readStaticJSON();
+		createColorMap();
 
 		if(topicsData.isEmpty() && countriesData.isEmpty() && languagesData.isEmpty()) {
 			new AsyncSourcesLoader(this).execute();
@@ -103,6 +112,29 @@ public class MainActivity extends AppCompatActivity {
 	private void selectItem(int position) {
 		pager.setBackground(null);
 
+		currentSource = currentSourcesDisplayed.get(position);
+
+		new AsyncArticleLoader(this).execute(currentSource.getId());
+
+		drawerLayout.closeDrawer(drawerList);
+	}
+
+	public void setArticles(ArrayList<Article> articleList) {
+		setTitle(currentSource.getName());
+
+		for(int i=0; i < articlePagerAdapter.getCount(); i++) {
+			articlePagerAdapter.notifyChangeInPosition(i);
+		}
+
+		fragments.clear();
+
+		for(int i=0; i < articleList.size(); i++) {
+			fragments.add(ArticleFragment.newInstance(articleList.get(i), i+1, articleList.size()));
+		}
+
+		articlePagerAdapter.notifyDataSetChanged();
+
+		pager.setCurrentItem(0);
 	}
 
 	@Override
@@ -151,7 +183,12 @@ public class MainActivity extends AppCompatActivity {
 		Collections.sort(topicsList);
 		SubMenu topicsMenu = menu.addSubMenu("Topics");
 		for(String s: topicsList) {
-			topicsMenu.add(s);
+			MenuItem menuItem = topicsMenu.add(s);
+			if(!s.equals("all")) {
+				Spannable span = new SpannableString(menuItem.getTitle().toString());
+				span.setSpan(new ForegroundColorSpan(colorMap.get(s)), 0, span.length(), 0);
+				menuItem.setTitle(span);
+			}
 		}
 
 		ArrayList<String> languagesList = new ArrayList<>(languagesData.keySet());
@@ -180,7 +217,7 @@ public class MainActivity extends AppCompatActivity {
 
 		Collections.sort(currentSourcesDisplayed);
 
-		drawerList.setAdapter(new DrawerSourceAdapter(this, R.layout.drawer_item, currentSourcesDisplayed));
+		drawerList.setAdapter(new DrawerSourceAdapter(this, R.layout.drawer_item, currentSourcesDisplayed, colorMap));
 
 		setTitle(getResources().getString(R.string.app_name) + " (" + currentSourcesDisplayed.size() + ")");
 
@@ -188,6 +225,14 @@ public class MainActivity extends AppCompatActivity {
 			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 			getSupportActionBar().setHomeButtonEnabled(true);
 		}
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+		super.onSaveInstanceState(outState, outPersistentState);
+		outState.putString("CURR_SUBMENU_CAT", currentSubMenuCategory);
+		outState.putSerializable("CURR_SOURCE", currentSource);
+		outState.putParcelableArrayList("CURR_SOURCE_DISPLAYED", currentSourcesDisplayed);
 	}
 
 	public boolean onOptionsItemSelected(MenuItem item) {
@@ -244,7 +289,22 @@ public class MainActivity extends AppCompatActivity {
 		((DrawerSourceAdapter) drawerList.getAdapter()).notifyDataSetChanged();
 		setTitle(getResources().getString(R.string.app_name) + " (" + currentSourcesDisplayed.size() + ")");
 
+		if(currentSourcesDisplayed.size() == 0) {
+			displayZeroSourcesAlert();
+		}
+
 		return super.onOptionsItemSelected(item);
+	}
+
+	private void displayZeroSourcesAlert() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle("No Sources match selected criteria.");
+		builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.cancel();
+			}
+		});
 	}
 
 	private void readStaticJSON() {
@@ -323,5 +383,15 @@ public class MainActivity extends AppCompatActivity {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	private void createColorMap() {
+		colorMap.put("business", getResources().getColor(R.color.business));
+		colorMap.put("entertainment", getResources().getColor(R.color.entertainment));
+		colorMap.put("general", getResources().getColor(R.color.general));
+		colorMap.put("health", getResources().getColor(R.color.health));
+		colorMap.put("science", getResources().getColor(R.color.science));
+		colorMap.put("sports", getResources().getColor(R.color.sports));
+		colorMap.put("technology", getResources().getColor(R.color.technology));
 	}
 }

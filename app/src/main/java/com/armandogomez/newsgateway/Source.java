@@ -1,6 +1,11 @@
 package com.armandogomez.newsgateway;
 
-public class Source implements Comparable<Source>{
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import java.io.Serializable;
+
+public class Source implements Comparable<Source>, Serializable, Parcelable {
 
 	private String id;
 	private String name;
@@ -14,6 +19,10 @@ public class Source implements Comparable<Source>{
 		this.category = category;
 		this.language = language;
 		this.country = country;
+	}
+
+	Source(Parcel in) {
+		
 	}
 
 	public String getId() {

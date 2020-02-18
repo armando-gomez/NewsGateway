@@ -3,4 +3,11 @@
     <color name="colorPrimary">#3949AB</color>
     <color name="colorPrimaryDark">#283593</color>
     <color name="colorAccent">#039BE5</color>
+    <color name="business">#43A047</color>
+    <color name="entertainment">#FFB300</color>
+    <color name="general">#7B1FA2</color>
+    <color name="health">#0288D1</color>
+    <color name="science">#F57C00</color>
+    <color name="sports">#D32F2F</color>
+    <color name="technology">#7CB342</color>
 </resources>
