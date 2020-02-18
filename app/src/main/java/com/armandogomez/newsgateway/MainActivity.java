@@ -130,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
 			}
 
 			if(language != null) {
-				String name = languageMap.get(language);
+				String name = languageMap.get(language.toUpperCase());
 				if(!languagesData.containsKey(name)) {
 					languagesData.put(name, new ArrayList<Source>());
 				}
@@ -138,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
 			}
 
 			if(country != null) {
-				String name = countryMap.get(country);
+				String name = countryMap.get(country.toUpperCase());
 				if(!countriesData.containsKey(name)) {
 					countriesData.put(name, new ArrayList<Source>());
 				}
@@ -155,16 +155,17 @@ public class MainActivity extends AppCompatActivity {
 		}
 
 		ArrayList<String> languagesList = new ArrayList<>(languagesData.keySet());
-		languagesList.add("all");
 		Collections.sort(languagesList);
+		languagesList.add(0, "all");
 		SubMenu languagesMenu = menu.addSubMenu("Languages");
 		for(String s: languagesList) {
 			languagesMenu.add(s);
 		}
 
 		ArrayList<String> countriesList = new ArrayList<>(countriesData.keySet());
-		countriesList.add("all");
+
 		Collections.sort(countriesList);
+		countriesList.add(0, "all");
 		SubMenu countriesMenu = menu.addSubMenu("Countries");
 		for(String s: countriesList) {
 			countriesMenu.add(s);
