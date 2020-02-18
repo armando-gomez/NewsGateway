@@ -1,6 +1,6 @@
 package com.armandogomez.newsgateway;
 
-public class Source {
+public class Source implements Comparable<Source>{
 
 	private String id;
 	private String name;
@@ -35,4 +35,10 @@ public class Source {
 	public String getCountry() {
 		return country;
 	}
+
+	@Override
+	public int compareTo(Source s) {
+		return this.getName().compareTo(s.getName());
+	}
+
 }
